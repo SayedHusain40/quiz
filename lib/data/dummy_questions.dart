@@ -1,6 +1,6 @@
 import 'package:quiz/models/quiz_questions.dart';
 
-final List<QuizQuestions> questions = [
+final List<QuizQuestions> dummyQuestions = [
   QuizQuestions(
     question: 'What is Flutter primarily used for?',
     answers: [
@@ -38,13 +38,21 @@ final List<QuizQuestions> questions = [
     ],
   ),
   QuizQuestions(
-    question:
-        'What widget is used for infinite scrolling lists in Flutter?............................................',
+    question: 'What widget is used for infinite scrolling lists in Flutter?',
     answers: [
       'ListView', // correct (index 0)
       'RecyclerView',
       'ScrollPane',
       'TableView',
+    ],
+  ),
+  QuizQuestions(
+    question: 'Which Flutter widget is used for managing state across widgets?',
+    answers: [
+      'StatefulWidget', // correct
+      'StatelessWidget',
+      'InheritedWidget',
+      'Container',
     ],
   ),
 ];

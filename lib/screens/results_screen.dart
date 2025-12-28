@@ -1,99 +1,125 @@
+import 'package:quiz/data/dummy_questions.dart';
 import 'package:flutter/material.dart';
-import 'package:quiz/data/questions.dart';
 
 class ResultsScreen extends StatelessWidget {
+  final List<String> userAnswers;
+
+  final Function() onRestart;
+
   const ResultsScreen({
     super.key,
     required this.userAnswers,
-    required this.onRestartQuiz,
+    required this.onRestart,
   });
-  final List<String> userAnswers;
-  final Function() onRestartQuiz;
-
-  List<Map<String, Object>> get summeryData {
-    List<Map<String, Object>> summeryQuizData = [];
-
-    for (int i = 0; i < questions.length; i++) {
-      summeryQuizData.add({
-        'index': i + 1,
-        'question': questions[i].question,
-        'correct_answer': questions[i].answers[0],
-        'user_answer': userAnswers[i],
-        'isUserAnswerCorrect': questions[i].answers[0] == userAnswers[i]
-            ? true
-            : false,
-      });
-    }
-    return summeryQuizData;
-  }
 
   @override
   Widget build(BuildContext context) {
-    final int totalQuestions = questions.length;
+    final List<Map<String, Object>> summeryQuiz = [];
+    int totalCorrectAnswers = 0;
 
-    final int totalCorrectAnswers = summeryData.where((data) {
-      return data['isUserAnswerCorrect'] == true;
-    }).length;
+    print('object ${dummyQuestions.length} and ${userAnswers.length}');
+
+    for (int i = 0; i < dummyQuestions.length; i++) {
+      final currentQuestion = dummyQuestions[i];
+      final isUserAnswerCorrect = userAnswers[i] == currentQuestion.answers[0];
+      if (isUserAnswerCorrect) {
+        totalCorrectAnswers += 1;
+      }
+      summeryQuiz.add({
+        'index': i + 1,
+        'question': currentQuestion.question,
+        'correct_answer': currentQuestion.answers[0],
+        'user_answer': userAnswers[i],
+        'isUserAnswerCorrect': isUserAnswerCorrect,
+      });
+    }
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          'You got $totalCorrectAnswers of $totalQuestions of correct answers!',
-          style: TextStyle(color: Colors.white, fontSize: 20),
-        ),
-        SizedBox(height: 30),
+        const SizedBox(height: 20),
 
-        SizedBox(
-          height: 300,
-          child: SingleChildScrollView(
-            child: Column(
-              children: summeryData.map((data) {
-                return Row(
+        Text(
+          'Quiz Results',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 20),
+
+        Text(
+          'You answered $totalCorrectAnswers out if ${summeryQuiz.length} correctly',
+          style: const TextStyle(fontSize: 18, color: Colors.white),
+          textAlign: TextAlign.center,
+        ),
+
+        Expanded(
+          child: ListView.separated(
+            separatorBuilder: (context, index) => SizedBox(height: 10),
+            itemCount: summeryQuiz.length,
+            itemBuilder: (context, index) {
+              final currentQuestion = summeryQuiz[index];
+              final isAnswerCorrect =
+                  currentQuestion['isUserAnswerCorrect'] as bool;
+
+              return Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 2,
+                    color: isAnswerCorrect ? Colors.green : Colors.red,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  color: isAnswerCorrect ? Colors.green[100] : Colors.red[100],
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      minRadius: 15,
-                      backgroundColor: data['isUserAnswerCorrect'] == true
-                          ? Colors.greenAccent
-                          : Colors.pink,
-                      child: Text('${data['index'] as int}'),
-                    ),
-                    SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-
-                        children: [
-                          Text(
-                            data['question'] as String,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          Text(
-                            data['correct_answer'] as String,
-                            style: TextStyle(color: Colors.redAccent),
-                          ),
-                          Text(
-                            data['user_answer'] as String,
-                            style: TextStyle(color: Colors.blueAccent),
-                          ),
-                        ],
+                    Text(
+                      'Q${currentQuestion['index'] as int}: ${currentQuestion['question'] as String}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 5),
+
+                    Text(
+                      'Your answer: ${currentQuestion['user_answer'] as String}',
+                      style: TextStyle(
+                        color: isAnswerCorrect
+                            ? Colors.green[800]
+                            : Colors.red[800],
+                      ),
+                    ),
+                    if (!isAnswerCorrect)
+                      Text(
+                        'Correct answer: ${currentQuestion['correct_answer'] as String}',
+                        style: const TextStyle(color: Colors.black87),
+                      ),
                   ],
-                );
-              }).toList(),
-            ),
+                ),
+              );
+            },
           ),
         ),
 
-        SizedBox(height: 30),
-        ElevatedButton.icon(
-          onPressed: onRestartQuiz,
-          icon: Icon(Icons.restart_alt),
-          label: Text('Restart'),
+        const SizedBox(height: 30),
+        ElevatedButton(
+          onPressed: onRestart,
+
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            backgroundColor: Colors.deepPurple,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+          ),
+          child: const Text('Restart Quiz', style: TextStyle(fontSize: 18)),
         ),
+        const SizedBox(height: 30),
       ],
     );
   }
